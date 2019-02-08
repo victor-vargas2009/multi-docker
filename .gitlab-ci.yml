@@ -3,13 +3,18 @@ services:
 - docker:dind
 
 stages:
+- build_test_client
+- test
 - build
-- build_prod
 - release
 
 variables:
   CLIENT_TAG_NAME: vargasreyesvucsf/multi-client
-  CLIENT_TEST_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  CLIENT_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  NGINX_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  SERVER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  WORKER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  # Images used in the release to be tagged as latest
   CLIENT_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:latest
   NGINX_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-nginx:latest
   SERVER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-server:latest
@@ -18,29 +23,52 @@ variables:
 before_script:
   - docker login -u "$CI_REGISTRY_USER" -p "$CI_JOB_TOKEN" $CI_REGISTRY
 
-build_test:
-  stage: build_test
+build_test_client:
+  stage: build_test_client
   script:
-  - docker pull -t $CLIENT_TEST_IMAGE
-  - docker run $CLIENT_TAG_NAME npm test -- --coverage
+  - docker build --pull -t $CLIENT_BUILD_IMAGE -f ./client/Dockerfile.dev ./client
+  - docker run $CLIENT_BUILD_IMAGE npm test -- --coverage
 
 test:
+  stage: test
   script:
-  - docker pull $CLIENT_TEST_IMAGE
-  - docker run $CLIENT_TEST_IMAGE npm test -- --coverage
+  - docker pull $CLIENT_BUILD_IMAGE
+  - docker run $CLIENT_BUILD_IMAGE npm test -- --coverage
 
-build_prod:
-  stage: build_prod
+build:
+  stage: build
   script:
-    - docker build --pull -t $CLIENT_RELEASE_IMAGE ./client
-    - docker build --pull -t $NGINX_RELEASE_IMAGE ./nginx
-    - docker build --pull -t $SERVER_RELEASE_IMAGE ./server
-    - docker build --pull -t $WORKER_RELEASE_IMAGE ./worker
+    - docker build --pull -t $CLIENT_BUILD_IMAGE ./client
+    - docker build --pull -t $NGINX_BUILD_IMAGE ./nginx
+    - docker build --pull -t $SERVER_BUILD_IMAGE ./server
+    - docker build --pull -t $WORKER_BUILD_IMAGE ./worker
     # Pushing Images into Gitlab
+    - docker push $CLIENT_BUILD_IMAGE
+    - docker push $NGINX_BUILD_IMAGE
+    - docker push $SERVER_BUILD_IMAGE
+    - docker push $WORKER_BUILD_IMAGE
+  only:
+    - master
+  when: on_success
+
+release:
+  stage: release
+  script:
+    - docker pull $CLIENT_BUILD_IMAGE
+    - docker tag $CLIENT_BUILD_IMAGE $CLIENT_RELEASE_IMAGE
     - docker push $CLIENT_RELEASE_IMAGE
+
+    - docker pull $NGINX_BUILD_IMAGE
+    - docker tag $NGINX_BUILD_IMAGE $NGINX_RELEASE_IMAGE
     - docker push $NGINX_RELEASE_IMAGE
+
+    - docker pull $SERVER_BUILD_IMAGE
+    - docker tag $SERVER_BUILD_IMAGE $SERVER_RELEASE_IMAGE
     - docker push $SERVER_RELEASE_IMAGE
-    - docker push $WORKER_RELEASE_IMAGE
+
+    - docker pull $WORKER_BUILD_IMAGE
+    - docker tag $WORKER_BUILD_IMAGE $WORKER_BUILD_IMAGE
+    - docker push $WORKER_BUILD_IMAGE
   only:
     - master
   when: on_success
