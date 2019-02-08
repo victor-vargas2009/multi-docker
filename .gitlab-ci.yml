@@ -21,7 +21,7 @@ before_script:
 build_test:
   stage: build_test
   script:
-  - docker build --pull -t $CLIENT_TEST_IMAGE -f ./client/Dockerfile.dev ./client
+  - docker pull -t $CLIENT_TEST_IMAGE
   - docker run $CLIENT_TAG_NAME npm test -- --coverage
 
 test:
