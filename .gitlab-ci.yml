@@ -19,7 +19,7 @@ variables:
 build_test:
   stage: build_test
   script:
-  - docker build --pull -t $CLIENT_TAG_NAME -f ./client/Dockerfile.dev ./client
+  - docker build -t $CLIENT_TAG_NAME -f ./client/Dockerfile.dev ./client
 
 test:
   stage: test
