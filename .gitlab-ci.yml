@@ -1,13 +1,30 @@
-sudo: required
+image: docker:latest
 services:
- - docker
+- docker:dind
+
+stages:
+- build
+- test
+- release
+
+variables:
+  TEST_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker:$CI_COMMIT_REF_NAME
+  RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker:latest
 
 before_script:
-  - docker build -t vargasreyesvucsf/react-test -f ./client/Dockerfile.dev ./client
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+
+build:
+  stage: build
+  script:
+  - docker build --pull -t $TEST_IMAGE -f ./client/Dockerfile.dev ./client
+  - docker push $TEST_IMAGE
 
 test:
+  stage: test
   script:
-    - docker run vargasreyesvucsf/react-test npm test -- --coverage
+    - docker pull $TEST_IMAGE
+    - docker run $TEST_IMAGE npm test -- --coverage
 
 # after_success:
 #  - docker build -t vargasreyesvucsf/muti-client ./client
