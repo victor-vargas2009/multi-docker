@@ -29,7 +29,7 @@ test:
     - docker run $CLIENT_TEST_IMAGE npm test -- --coverage
 
 build_prod:
-  stage: cleanup_bbuild_produild
+  stage: build_prod
   script:
     - docker build --pull -t $CLIENT_RELEASE_IMAGE ./client
     - docker build --pull -t $NGINX_RELEASE_IMAGE ./nginx
