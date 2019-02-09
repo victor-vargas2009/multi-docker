@@ -21,13 +21,13 @@ variables:
   WORKER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-worker:latest
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_JOB_TOKEN" $CI_REGISTRY
 
 build_test_client:
   stage: build_test_client
   script:
   - docker build --pull -t $CLIENT_BUILD_IMAGE -f ./client/Dockerfile.dev ./client
-  - docker run $CLIENT_BUILD_IMAGE npm test -- --coverage
+  - docker push $CLIENT_BUILD_IMAGE
 
 test:
   stage: test
@@ -68,7 +68,7 @@ release:
 
     - docker pull $WORKER_BUILD_IMAGE
     - docker tag $WORKER_BUILD_IMAGE $WORKER_BUILD_IMAGE
-    - docker push $WORKER_BUILD_IMAGE
+    - docker push $WORKER_RELEASE_IMAGE
   only:
     - master
   when: on_success
