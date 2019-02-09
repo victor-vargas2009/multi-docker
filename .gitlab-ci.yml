@@ -10,15 +10,15 @@ stages:
 
 variables:
   CLIENT_TAG_NAME: vargasreyesvucsf/multi-client
-  CLIENT_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
-  NGINX_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
-  SERVER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
-  WORKER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:$CI_COMMIT_REF_NAME
+  CLIENT_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/client:$CI_COMMIT_REF_NAME
+  NGINX_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/nginx:$CI_COMMIT_REF_NAME
+  SERVER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/server:$CI_COMMIT_REF_NAME
+  WORKER_BUILD_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/worker:$CI_COMMIT_REF_NAME
   # Images used in the release to be tagged as latest
-  CLIENT_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-client:latest
-  NGINX_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-nginx:latest
-  SERVER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-server:latest
-  WORKER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-worker:latest
+  CLIENT_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/client:latest
+  NGINX_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/nginx:latest
+  SERVER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/server:latest
+  WORKER_RELEASE_IMAGE: registry.gitlab.com/victor-vargas2009/multi-docker/worker:latest
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
