@@ -67,7 +67,7 @@ release:
     - docker push $SERVER_RELEASE_IMAGE
 
     - docker pull $WORKER_BUILD_IMAGE
-    - docker tag $WORKER_BUILD_IMAGE $WORKER_BUILD_IMAGE
+    - docker tag $WORKER_BUILD_IMAGE $WORKER_RELEASE_IMAGE
     - docker push $WORKER_RELEASE_IMAGE
   only:
     - master
